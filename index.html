@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>【论文笔记】基于小波包失真与卷积神经网络的机械系统极度失衡故障诊断</title>
+    <!-- 引入 GitHub 样式库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown.min.css">
+    
+    <!-- 引入 MathJax 用于渲染 LaTeX 数学公式 (已移除存在拦截风险的旧版兼容脚本) -->
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        /* 全局布局设置 */
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
+            background-color: #fff;
+            font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+        }
+
+        /* ----- 左侧侧边栏样式 ----- */
+        .sidebar {
+            width: 280px;
+            background-color: #f6f8fa; /* GitHub 侧边栏灰 */
+            border-right: 1px solid #d0d7de;
+            position: fixed; /* 固定在左侧 */
+            height: 100vh;
+            overflow-y: auto; /* 内容过多可滚动 */
+            padding: 24px;
+            box-sizing: border-box;
+            top: 0;
+            left: 0;
+            z-index: 100;
+        }
+
+        .sidebar h2 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #24292f;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar li {
+            margin-bottom: 8px;
+        }
+
+        /* 目录链接样式 */
+        .sidebar a {
+            text-decoration: none;
+            color: #57606a;
+            font-size: 14px;
+            display: block;
+            padding: 4px 0;
+            transition: color 0.2s;
+        }
+
+        .sidebar a:hover {
+            color: #0969da; /* GitHub 蓝 */
+            text-decoration: underline;
+        }
+
+        /* 子目录缩进 */
+        .sidebar .sub-menu {
+            margin-left: 20px;
+            margin-top: 4px;
+            font-size: 13px;
+        }
+
+        /* ----- 右侧主要内容区域样式 ----- */
+        .main-content {
+            margin-left: 280px; /* 给侧边栏留出空间 */
+            flex: 1;
+            padding: 40px 60px;
+            max-width: 1000px; /* 限制阅读宽度 */
+        }
+
+        /* 平滑滚动效果 */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* 图片居中修正 */
+        div[align="center"] {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        /* 表格样式修正，防止表格过长超出边界 */
+        table {
+            display: block;
+            width: 100%;
+            overflow: auto;
+        }
+
+        /* 移动端适配：屏幕变窄时，侧边栏变顶部导航或隐藏 */
+        @media (max-width: 900px) {
+            body { display: block; }
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid #d0d7de;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 左侧导航栏 -->
+    <nav class="sidebar">
+        <h2>目录 Navigation</h2>
+        <ul>
+            <li><a href="#1-研究背景">1. 研究背景</a></li>
+            <li>
+                <a href="#2-技术原理小波包失真wavelet-packet-distortion">2. 技术原理：小波包失真</a>
+                <ul class="sub-menu">
+                    <li><a href="#21-信号分解与变换">2.1 信号分解与变换</a></li>
+                    <li><a href="#22-非线性失真处理">2.2 非线性失真处理</a></li>
+                    <li><a href="#23-信号重构">2.3 信号重构</a></li>
+                </ul>
+            </li>
+            <li><a href="#3-分类模型架构convnet">3. 分类模型架构：ConvNet</a></li>
+            <li>
+                <a href="#4-实验验证">4. 实验验证</a>
+                <ul class="sub-menu">
+                    <li><a href="#41-实验设置">4.1 实验设置</a></li>
+                    <li><a href="#42-性能对比">4.2 性能对比</a></li>
+                </ul>
+            </li>
+            <li><a href="#5-结论">5. 结论</a></li>
+            <li><a href="#文献来源">文献来源</a></li>
+        </ul>
+    </nav>
+
+    <!-- 右侧 GitHub 风格正文 -->
+    <main class="main-content markdown-body">
+        
+        <h1>【论文笔记】基于小波包失真与卷积神经网络的机械系统极度失衡故障诊断</h1>
+
+        <blockquote>
+            <p><strong>Mechanical Fault Diagnosis via WPD-CNN</strong></p>
+            <p><strong>Paper Title:</strong> <em>Highly imbalanced fault diagnosis of mechanical systems based on wavelet packet distortion and convolutional neural networks</em></p>
+            <p><strong>Journal:</strong> <em>Advanced Engineering Informatics</em>, Vol. 51, 2022, 101535</p>
+            <p><strong>DOI:</strong> <a href="https://doi.org/10.1016/j.aei.2022.101535">10.1016/j.aei.2022.101535</a></p>
+        </blockquote>
+
+        <p>
+            <a href="https://doi.org/10.1016/j.aei.2022.101535"><img src="https://img.shields.io/badge/DOI-10.1016/j.aei.2022.101535-blue" alt="DOI"></a>
+            <a href="#"><img src="https://img.shields.io/badge/Status-Published-brightgreen" alt="Status"></a>
+            <a href="#"><img src="https://img.shields.io/badge/Topic-Imbalanced%20Learning-orange" alt="Topic"></a>
+        </p>
+
+        <h2 id="目录">目录</h2>
+        <ul>
+            <li><a href="#1-研究背景">1. 研究背景</a></li>
+            <li><a href="#2-技术原理小波包失真wavelet-packet-distortion">2. 技术原理：小波包失真（Wavelet Packet Distortion）</a>
+                <ul>
+                    <li><a href="#21-信号分解与变换">2.1 信号分解与变换</a></li>
+                    <li><a href="#22-非线性失真处理">2.2 非线性失真处理</a></li>
+                    <li><a href="#23-信号重构">2.3 信号重构</a></li>
+                </ul>
+            </li>
+            <li><a href="#3-分类模型架构convnet">3. 分类模型架构：ConvNet</a></li>
+            <li><a href="#4-实验验证">4. 实验验证</a>
+                <ul>
+                    <li><a href="#41-实验设置">4.1 实验设置</a></li>
+                    <li><a href="#42-性能对比">4.2 性能对比</a></li>
+                </ul>
+            </li>
+            <li><a href="#5-结论">5. 结论</a></li>
+            <li><a href="#文献来源">文献来源</a></li>
+        </ul>
+
+        <hr>
+
+        <h3 id="1-研究背景">1. 研究背景</h3>
+        <p>在机械系统监控领域，自动故障诊断技术对于保障工业安全具有重要意义。然而，实际工程场景中面临的核心挑战是<strong>数据类别失衡（Class Imbalance）</strong>：由于机械设备长时间处于正常运行状态，获取的健康样本充足，而真实的故障样本极度稀缺。</p>
+        <p>传统的深度学习模型在极度不平衡的数据集（如健康样本与故障样本比例达 80:1）上训练时，往往表现出明显的分类偏差，模型倾向于将所有样本预测为多数类（健康类），从而导致故障漏报。现有的数据增强方法（如随机过采样或合成少数类过采样）在处理极少量的故障样本时，容易造成过拟合或引入无关噪声。</p>
+
+        <h3 id="2-技术原理小波包失真wavelet-packet-distortion">2. 技术原理：小波包失真（Wavelet Packet Distortion）</h3>
+        <p>论文提出了一种基于小波包失真（WPD）的数据增强策略，通过在时频域对原始信号进行物理意义明确的变换，生成具有多样性的新样本。</p>
+
+        <div align="center">
+          <img src="https://github.com/user-attachments/assets/9c1c7353-00f0-4f8d-8ea9-bdf849c986c1" width="70%" />
+          <p><em>图1 小波包失真流程图</em></p>
+        </div>
+
+        <h4 id="21-信号分解与变换">2.1 信号分解与变换</h4>
+        <p>该方法首先利用小波包变换（Wavelet Packet Transform, WPT）将原始振动信号分解为不同频段的小波包系数。相比于标准小波变换，小波包变换能提供更精细的频率分辨率，从而更完整地捕捉故障特征。</p>
+
+        <h4 id="22-非线性失真处理">2.2 非线性失真处理</h4>
+        <p>在分解后的系数空间中，随机选取特定的节点进行非线性处理。处理函数定义如下：</p>
+        
+        <!-- 使用 MathJax 渲染公式 -->
+        <p>
+            $$ \tilde{w} = \text{sign}(w) \cdot (\text{abs}(w))^d $$
+        </p>
+
+        <p>其中，w 为原始小波系数，d 为失真系数，其取值在预设范围内随机选取（如 [0.8, 1.2]）。</p>
+        <p>这种设计的物理逻辑在于：故障特征通常与特定的频率分量相关。通过调整 d 的数值，可以改变波形的具体形态（幅值细节），但能较好地保留信号原始的频率分布特性。这意味着生成的增强样本在保持故障类别属性的同时，增加了样本的空间分布多样性。</p>
+
+        <div align="center">
+          <img src="https://github.com/user-attachments/assets/a743b18c-7fcd-4569-aef5-a411939a02be" width="50%" />
+          <p><em>图2 正弦信号及其失真版本</em></p>
+        </div>
+
+        <h4 id="23-信号重构">2.3 信号重构</h4>
+        <p>通过小波包逆变换（Inverse WPT）将修改后的系数重构成时间序列信号。将生成的样本与原始样本混合，构建一个类别平衡的训练集。</p>
+
+        <h3 id="3-分类模型架构convnet">3. 分类模型架构：ConvNet</h3>
+        <p>论文采用了卷积神经网络（CNN）作为端到端的分类器。由于经过 WPD 增强后的数据集已经实现了类别平衡，CNN 可以有效地学习到区分不同健康状态的深层特征。模型包含卷积层、批量归一化层（BN）、ReLU 激活函数以及全局平均池化层，最终通过 Softmax 层输出分类结果。</p>
+
+        <div align="center">
+          <img src="https://github.com/user-attachments/assets/7edf8b67-6dac-4fc9-99d5-f0e02d324abb" width="50%" />
+          <p><em>图3 整体诊断流程图</em></p>
+        </div>
+
+        <h3 id="4-实验验证">4. 实验验证</h3>
+
+        <h4 id="41-实验设置">4.1 实验设置</h4>
+        <p>实验数据来源于<strong>民用航空液压泵</strong>的地面仿真台架。数据集包含 1 类健康状态和 5 类故障状态。为了模拟极度失衡的情况，每类故障仅选取 5 个样本进行训练，而健康类包含 400 个训练样本。</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th align="left">标签</th>
+                    <th align="left">状态描述</th>
+                    <th align="left">训练样本数</th>
+                    <th align="left">测试样本数</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td align="left"><strong>H</strong></td>
+                    <td align="left">正常运行状态 (No observable faults)</td>
+                    <td align="left">400</td>
+                    <td align="left">80</td>
+                </tr>
+                <tr>
+                    <td align="left"><strong>F1</strong></td>
+                    <td align="left">配油盘磨损故障 (Wear-out failure of oil distribution pan)</td>
+                    <td align="left">5</td>
+                    <td align="left">475</td>
+                </tr>
+                <tr>
+                    <td align="left"><strong>F2</strong></td>
+                    <td align="left">缸体磨损故障 (Wear-out failure of cylinder blocks)</td>
+                    <td align="left">5</td>
+                    <td align="left">475</td>
+                </tr>
+                <tr>
+                    <td align="left"><strong>F3</strong></td>
+                    <td align="left">低压入口冲蚀故障 (Eroding failure with 0.3 Mpa lower entry pressure)</td>
+                    <td align="left">5</td>
+                    <td align="left">475</td>
+                </tr>
+                <tr>
+                    <td align="left"><strong>F4</strong></td>
+                    <td align="left">出口压力异常导致的变形故障 (Distortion failure with 20 Mpa exit pressure)</td>
+                    <td align="left">5</td>
+                    <td align="left">475</td>
+                </tr>
+                <tr>
+                    <td align="left"><strong>F5</strong></td>
+                    <td align="left">0.8 mm 裂纹疲劳故障 (Fatigued failure with a chink of 0.8 mm)</td>
+                    <td align="left">5</td>
+                    <td align="left">475</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h4 id="42-性能对比">4.2 性能对比</h4>
+        <p>论文将该方法（Developed）与基准 CNN 模型、欠采样法（DS）以及简单过采样法（OS）进行了对比。</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th align="left">平均指标 (%)</th>
+                    <th align="left">ConvNet (基准)</th>
+                    <th align="left">DS + ConvNet (欠采样)</th>
+                    <th align="left">OS + ConvNet (过采样)</th>
+                    <th align="left"><strong>Developed (论文提出的方法)</strong></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td align="left"><strong>F1-score</strong></td>
+                    <td align="left">89.40 ± 3.40</td>
+                    <td align="left">92.48 ± 2.95</td>
+                    <td align="left">96.03 ± 2.65</td>
+                    <td align="left"><strong>97.50 ± 1.74</strong></td>
+                </tr>
+                <tr>
+                    <td align="left"><strong>Precision</strong></td>
+                    <td align="left">91.10 ± 2.73</td>
+                    <td align="left">93.40 ± 2.63</td>
+                    <td align="left">96.66 ± 1.88</td>
+                    <td align="left"><strong>97.78 ± 1.27</strong></td>
+                </tr>
+                <tr>
+                    <td align="left"><strong>Recall</strong></td>
+                    <td align="left">89.52 ± 3.16</td>
+                    <td align="left">92.53 ± 2.97</td>
+                    <td align="left">96.10 ± 2.51</td>
+                    <td align="left"><strong>97.54 ± 1.65</strong></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <ul>
+            <li><strong>分类精度：</strong> 在 10 次独立试验中，该方法的 F1 分数、精确率（Precision）和召回率（Recall）均表现出显著优势。平均 F1 分数达到 97.50%，相比于简单过采样方法提高了 1.47%。</li>
+            <li><strong>稳定性：</strong> 箱线图分析显示，该方法的结果分布区间更窄，表明其对于不同批次的训练样本具有更强的鲁棒性。</li>
+            <li><strong>特征可视化：</strong> 通过 t-SNE 降维分析发现，使用该方法训练的模型在特征空间中能够形成紧凑的类簇，且各类别之间的边界清晰，有效解决了特征重叠的问题。</li>
+        </ul>
+
+        <h3 id="5-结论">5. 结论</h3>
+        <p>小波包失真作为一种信号层面的数据增强手段，能够有效地缓解机械故障诊断中的小样本与不平衡问题。该方法计算效率高，不依赖复杂的生成网络，且生成的样本保留了原始物理特征，适用于民用航空、风力发电等关键工业领域的预测性维护任务。</p>
+
+        <hr>
+
+        <h3 id="文献来源">文献来源</h3>
+        <ul>
+            <li><strong>标题:</strong> Highly imbalanced fault diagnosis of mechanical systems based on wavelet packet distortion and convolutional neural networks</li>
+            <li><strong>期刊:</strong> <em>Advanced Engineering Informatics</em>, 2022, 51: 101535.</li>
+            <li><strong>DOI:</strong> <a href="https://doi.org/10.1016/j.aei.2022.101535">10.1016/j.aei.2022.101535</a></li>
+        </ul>
+
+    </main>
+
+</body>
+</html>
