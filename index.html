@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paper Notes: Highly imbalanced fault diagnosis via WPD-CNN</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown.min.css">
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body { margin: 0; padding: 0; display: flex; min-height: 100vh; background-color: #fff; font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; }
+        .sidebar { width: 280px; background-color: #f6f8fa; border-right: 1px solid #d0d7de; position: fixed; height: 100vh; overflow-y: auto; padding: 24px; box-sizing: border-box; top: 0; left: 0; z-index: 100; }
+        .sidebar h2 { font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #24292f; }
+        .sidebar ul { list-style: none; padding: 0; margin: 0; }
+        .sidebar li { margin-bottom: 8px; }
+        .sidebar a { text-decoration: none; color: #57606a; font-size: 14px; display: block; padding: 4px 0; transition: color 0.2s; }
+        .sidebar a:hover { color: #0969da; text-decoration: underline; }
+        .sidebar .sub-menu { margin-left: 20px; margin-top: 4px; font-size: 13px; }
+        .main-content { margin-left: 280px; flex: 1; padding: 40px 60px; max-width: 1000px; }
+        html { scroll-behavior: smooth; }
+        div[align="center"] { text-align: center; margin: 20px 0; }
+        table { display: block; width: 100%; overflow: auto; }
+        @media (max-width: 900px) {
+            body { display: block; }
+            .sidebar { position: relative; width: 100%; height: auto; border-right: none; border-bottom: 1px solid #d0d7de; }
+            .main-content { margin-left: 0; padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="sidebar">
+        <h2>Contents</h2>
+        <ul>
+            <li><a href="#1-research-background">1. Research Background</a></li>
+            <li>
+                <a href="#2-technical-principle-wavelet-packet-distortion">2. Technical Principle: WPD</a>
+                <ul class="sub-menu">
+                    <li><a href="#21-signal-decomposition">2.1 Signal Decomposition</a></li>
+                    <li><a href="#22-nonlinear-distortion">2.2 Nonlinear Distortion</a></li>
+                    <li><a href="#23-signal-reconstruction">2.3 Signal Reconstruction</a></li>
+                </ul>
+            </li>
+            <li><a href="#3-classification-model-convnet">3. Classification Model: ConvNet</a></li>
+            <li>
+                <a href="#4-experimental-verification">4. Experimental Verification</a>
+                <ul class="sub-menu">
+                    <li><a href="#41-experimental-setup">4.1 Experimental Setup</a></li>
+                    <li><a href="#42-performance-comparison">4.2 Performance Comparison</a></li>
+                </ul>
+            </li>
+            <li><a href="#5-conclusion">5. Conclusion</a></li>
+            <li><a href="#literature-source">Literature Source</a></li>
+        </ul>
+    </nav>
+    <main class="main-content markdown-body">
+        <h1>[Paper Notes] Highly imbalanced fault diagnosis of mechanical systems based on wavelet packet distortion and convolutional neural networks</h1>
+        <blockquote>
+            <p><strong>Mechanical Fault Diagnosis via WPD-CNN</strong></p>
+            <p><strong>Journal:</strong> <em>Advanced Engineering Informatics</em>, Vol. 51, 2022, 101535</p>
+            <p><strong>DOI:</strong> <a href="https://doi.org/10.1016/j.aei.2022.101535">10.1016/j.aei.2022.101535</a></p>
+        </blockquote>
+        <p>
+            <a href="https://doi.org/10.1016/j.aei.2022.101535"><img src="https://img.shields.io/badge/DOI-10.1016/j.aei.2022.101535-blue" alt="DOI"></a>
+            <a href="#"><img src="https://img.shields.io/badge/Status-Published-brightgreen" alt="Status"></a>
+            <a href="#"><img src="https://img.shields.io/badge/Topic-Imbalanced%20Learning-orange" alt="Topic"></a>
+        </p>
+
+        <h3 id="1-research-background">1. Research Background</h3>
+        <p>In the field of mechanical system monitoring, automatic fault diagnosis technology is of great significance for ensuring industrial safety. However, the core challenge in actual engineering scenarios is <strong>Class Imbalance</strong>: mechanical equipment operates in a normal state for a long time, resulting in abundant health samples but extremely scarce fault samples.</p>
+        <p>When traditional deep learning models are trained on highly imbalanced datasets (e.g., health to fault ratio of 80:1), they tend to show obvious classification bias, predicting all samples as the majority class (health), leading to missed faults. Existing data augmentation methods (like random oversampling or SMOTE) tend to cause overfitting or introduce irrelevant noise when handling very few fault samples.</p>
+
+        <h3 id="2-technical-principle-wavelet-packet-distortion">2. Technical Principle: Wavelet Packet Distortion (WPD)</h3>
+        <p>This paper proposes a data augmentation strategy based on Wavelet Packet Distortion (WPD), generating diverse new samples by performing physically meaningful transformations on the original signals in the time-frequency domain.</p>
+
+        <div align="center">
+          <img src="https://github.com/user-attachments/assets/9c1c7353-00f0-4f8d-8ea9-bdf849c986c1" width="70%" />
+          <p><em>Fig 1. Flowchart of Wavelet Packet Distortion</em></p>
+        </div>
+
+        <h4 id="21-signal-decomposition">2.1 Signal Decomposition and Transformation</h4>
+        <p>The method first uses Wavelet Packet Transform (WPT) to decompose the original vibration signal into wavelet packet coefficients in different frequency bands. Compared to standard wavelet transform, WPT provides finer frequency resolution to capture fault features completely.</p>
+
+        <h4 id="22-nonlinear-distortion">2.2 Nonlinear Distortion Processing</h4>
+        <p>Specific nodes in the decomposed coefficient space are randomly selected for nonlinear processing. The processing function is defined as:</p>
+        <p>$$ \tilde{w} = \text{sign}(w) \cdot (\text{abs}(w))^d $$</p>
+        <p>Where w is the original coefficient, and d is the distortion coefficient randomly selected within a preset range (e.g., [0.8, 1.2]). The physical logic is that fault features are usually associated with specific frequency components. By adjusting d, the specific shape of the waveform is altered while retaining the original frequency distribution characteristics.</p>
+
+        <div align="center">
+          <img src="https://github.com/user-attachments/assets/a743b18c-7fcd-4569-aef5-a411939a02be" width="50%" />
+          <p><em>Fig 2. Sine signal and its distorted versions</em></p>
+        </div>
+
+        <h4 id="23-signal-reconstruction">2.3 Signal Reconstruction</h4>
+        <p>The modified coefficients are reconstructed into a time-series signal using Inverse WPT. The generated samples are mixed with original samples to build a class-balanced training set.</p>
+
+        <h3 id="3-classification-model-convnet">3. Classification Model Architecture: ConvNet</h3>
+        <p>The paper utilizes a Convolutional Neural Network (CNN) as the end-to-end classifier. Since the dataset is balanced after WPD augmentation, CNN can effectively learn deep features to distinguish different health states. The model includes Convolutional layers, Batch Normalization (BN), ReLU activation, and Global Average Pooling (GAP), outputting results via Softmax.</p>
+
+        <h3 id="4-experimental-verification">4. Experimental Verification</h3>
+
+        <h4 id="41-experimental-setup">4.1 Experimental Setup</h4>
+        <p>Experimental data comes from a ground simulation test bench for <strong>civil aviation hydraulic pumps</strong>. The dataset contains 1 health state and 5 fault states. To simulate extreme imbalance, only 5 samples are selected for each fault class for training, while the health class contains 400 training samples.</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th align="left">Label</th>
+                    <th align="left">State Description</th>
+                    <th align="left">Train Samples</th>
+                    <th align="left">Test Samples</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td align="left"><strong>H</strong></td><td align="left">Normal operation state (No observable faults)</td><td align="left">400</td><td align="left">80</td></tr>
+                <tr><td align="left"><strong>F1</strong></td><td align="left">Wear-out failure of oil distribution pan</td><td align="left">5</td><td align="left">475</td></tr>
+                <tr><td align="left"><strong>F2</strong></td><td align="left">Wear-out failure of cylinder blocks</td><td align="left">5</td><td align="left">475</td></tr>
+                <tr><td align="left"><strong>F3</strong></td><td align="left">Eroding failure with 0.3 Mpa lower entry pressure</td><td align="left">5</td><td align="left">475</td></tr>
+                <tr><td align="left"><strong>F4</strong></td><td align="left">Distortion failure with 20 Mpa exit pressure</td><td align="left">5</td><td align="left">475</td></tr>
+                <tr><td align="left"><strong>F5</strong></td><td align="left">Fatigued failure with a chink of 0.8 mm</td><td align="left">5</td><td align="left">475</td></tr>
+            </tbody>
+        </table>
+
+        <h4 id="42-performance-comparison">4.2 Performance Comparison</h4>
+        <p>The proposed method (Developed) is compared with baseline ConvNet, Down-sampling (DS), and Over-sampling (OS).</p>
+        <table>
+            <thead>
+                <tr>
+                    <th align="left">Average Metrics (%)</th>
+                    <th align="left">ConvNet (Baseline)</th>
+                    <th align="left">DS + ConvNet</th>
+                    <th align="left">OS + ConvNet</th>
+                    <th align="left"><strong>Developed (Proposed)</strong></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td align="left"><strong>F1-score</strong></td><td align="left">89.40 ± 3.40</td><td align="left">92.48 ± 2.95</td><td align="left">96.03 ± 2.65</td><td align="left"><strong>97.50 ± 1.74</strong></td></tr>
+                <tr><td align="left"><strong>Precision</strong></td><td align="left">91.10 ± 2.73</td><td align="left">93.40 ± 2.63</td><td align="left">96.66 ± 1.88</td><td align="left"><strong>97.78 ± 1.27</strong></td></tr>
+                <tr><td align="left"><strong>Recall</strong></td><td align="left">89.52 ± 3.16</td><td align="left">92.53 ± 2.97</td><td align="left">96.10 ± 2.51</td><td align="left"><strong>97.54 ± 1.65</strong></td></tr>
+            </tbody>
+        </table>
+
+        <h3 id="5-conclusion">5. Conclusion</h3>
+        <p>Wavelet Packet Distortion, as a signal-level data augmentation method, can effectively alleviate the small sample and imbalance problems in mechanical fault diagnosis. It is computationally efficient, does not rely on complex generative networks, and retains original physical features, making it suitable for predictive maintenance in key industrial fields.</p>
+
+        <hr>
+        <h3 id="literature-source">Literature Source</h3>
+        <ul>
+            <li><strong>Title:</strong> Highly imbalanced fault diagnosis of mechanical systems based on wavelet packet distortion and convolutional neural networks</li>
+            <li><strong>Journal:</strong> <em>Advanced Engineering Informatics</em>, 2022, 51: 101535.</li>
+            <li><strong>DOI:</strong> <a href="https://doi.org/10.1016/j.aei.2022.101535">10.1016/j.aei.2022.101535</a></li>
+        </ul>
+    </main>
+</body>
+</html>
